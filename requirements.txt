@@ -1,0 +1,7 @@
+pinecone-client
+streamlit
+sentence-transformers
+requests
+beautifulsoup4
+transformers
+dotenv
