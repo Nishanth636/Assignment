@@ -13,10 +13,9 @@ PINECONE_API_KEY = os.getenv("PINECONE_API_KEY")
 HUGGINGFACE_API_KEY = os.getenv("HUGGINGFACE_API_KEY")
 INDEX_NAME = "project"
 
-# Initialize Pinecone
 pc = Pinecone(api_key=PINECONE_API_KEY)
 
-# Ensure the index exists
+
 if INDEX_NAME not in pc.list_indexes().names():
     pc.create_index(
         name=INDEX_NAME, 
@@ -25,13 +24,12 @@ if INDEX_NAME not in pc.list_indexes().names():
         spec=ServerlessSpec(cloud="aws", region="us-east-1")
     )
 
-# Connect to the index
+
 index = pc.Index(INDEX_NAME)
 
-# Load embedding model
+
 embedding_model = SentenceTransformer('all-MiniLM-L6-v2')
 
-# Load QA pipeline
 qa_pipeline = pipeline(
     "question-answering", 
     model="distilbert-base-cased-distilled-squad",
@@ -71,7 +69,7 @@ def get_answer_from_context(question, context):
     result = qa_pipeline(question=question, context=context)
     return result['answer']
 
-# Streamlit UI
+
 st.title("AI-Powered Web Scraper & QA Bot")
 url = st.text_input("Enter a website URL to scrape:", "https://en.wikipedia.org/wiki/Artificial_intelligence")
 
