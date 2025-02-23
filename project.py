@@ -11,22 +11,23 @@ from pinecone import Pinecone, ServerlessSpec
 load_dotenv()
 PINECONE_API_KEY = os.getenv("PINECONE_API_KEY")
 HUGGINGFACE_API_KEY = os.getenv("HUGGINGFACE_API_KEY")
+PINECONE_ENVIRONMENT = os.getenv("PINECONE_ENVIRONMENT")
 INDEX_NAME = "project"
 
-pc = Pinecone(api_key=PINECONE_API_KEY)
+pc = Pinecone(api_key=PINECONE_API_KEY, environment=PINECONE_ENVIRONMENT)
 
+if INDEX_NAME in pc.list_indexes().names():
+    pc.delete_index(INDEX_NAME)
 
 if INDEX_NAME not in pc.list_indexes().names():
     pc.create_index(
         name=INDEX_NAME, 
-        dimension=384, 
+        dimension=384,
         metric="cosine",
         spec=ServerlessSpec(cloud="aws", region="us-east-1")
     )
 
-
 index = pc.Index(INDEX_NAME)
-
 
 embedding_model = SentenceTransformer('all-MiniLM-L6-v2')
 
@@ -59,7 +60,7 @@ def embed_and_store_texts(texts):
 
 def retrieve_similar_text(query):
     query_embedding = embedding_model.encode([query]).flatten().tolist()
-    results = index.query(query_embedding, top_k=5, include_metadata=True)
+    results = index.query(vector=query_embedding, top_k=5, include_metadata=True)
     retrieved_texts = [match['metadata']['text'] for match in results['matches']]
     return retrieved_texts
 
@@ -68,7 +69,6 @@ def get_answer_from_context(question, context):
         return "No relevant content found in database!"
     result = qa_pipeline(question=question, context=context)
     return result['answer']
-
 
 st.title("AI-Powered Web Scraper & QA Bot")
 url = st.text_input("Enter a website URL to scrape:", "https://en.wikipedia.org/wiki/Artificial_intelligence")
