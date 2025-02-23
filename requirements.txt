@@ -1,7 +1,8 @@
-pinecone-client
 streamlit
+pinecone
 sentence-transformers
+transformers
 requests
 beautifulsoup4
-transformers
-dotenv
+python-dotenv
+torch
